@@ -1,54 +1,58 @@
 const API_URL = 'http://localhost:3000/tasks';
 
-const api = {
-
-  getAll: async () => {
-    try {
-      const res = await fetch(API_URL);
+function getAll() {
+  return fetch(API_URL)
+    .then((res) => {
       if (!res.ok) throw new Error('Error al obtener tareas');
-      return await res.json();
-    } catch (err) {
+      return res.json();
+    })
+    .catch(() => {
       throw new Error('Servidor no disponible');
-    }
-  },
-
-  create: async (data) => {
-    try {
-      const res = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data)
-      });
-
-      const json = await res.json();
-
-      if (!res.ok) throw new Error(json.error || 'Error al crear tarea');
-
-      return json;
-    } catch (err) {
-      throw err;
-    }
-  },
-
-  update: async (id, data) => {
-    const res = await fetch(`${API_URL}/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
     });
+}
 
-    const json = await res.json();
+function create(data) {
+  return fetch(API_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+    .then((res) => {
+      return res.json().then((json) => {
+        if (!res.ok) throw new Error(json.error || 'Error al crear tarea');
+        return json;
+      });
+    })
+    .catch((err) => {
+      throw err;
+    });
+}
 
-    if (!res.ok) throw new Error(json.error || 'Error al actualizar tarea');
+function update(id, data) {
+  return fetch(`${API_URL}/${id}`, {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  })
+    .then((res) => {
+      return res.json().then((json) => {
+        if (!res.ok) throw new Error(json.error || 'Error al actualizar tarea');
+        return json;
+      });
+    });
+}
 
-    return json;
-  },
+function remove(id) {
+  return fetch(`${API_URL}/${id}`, { method: 'DELETE' })
+    .then((res) => {
+      if (!res.ok) throw new Error('Error al eliminar tarea');
+      return res.json();
+    });
+}
 
-  remove: async (id) => {
-    const res = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
-
-    if (!res.ok) throw new Error('Error al eliminar tarea');
-
-    return res.json();
-  }
+const api = {
+  getAll,
+  create,
+  update,
+  remove
 };
